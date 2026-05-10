@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Plus, User, BookOpen, MapPin, Loader2, AlertCircle } from 'lucide-react';
 import { timetableAPI, academicAPI, teacherAPI } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface SlotEditDialogProps {
     isOpen: boolean;
@@ -33,7 +33,6 @@ const SlotEditDialog: React.FC<SlotEditDialogProps> = ({ isOpen, onClose, slot, 
         teacherId: '',
         roomId: '',
     });
-    const { toast } = useToast();
 
     useEffect(() => {
         if (isOpen && classId) {
@@ -70,17 +69,14 @@ const SlotEditDialog: React.FC<SlotEditDialogProps> = ({ isOpen, onClose, slot, 
         setIsSaving(true);
         try {
             await timetableAPI.updateSlot(slot.id, selection);
-            toast({
-                title: "Slot Updated",
+            toast.success("Slot Updated", {
                 description: `Assigned ${subjects.find(s => s.id === selection.subjectId)?.name} for this period.`,
             });
             onSuccess();
             onClose();
         } catch (error: any) {
-            toast({
-                title: "Conflict Detected",
+            toast.error("Conflict Detected", {
                 description: error?.response?.data?.error || "This assignment conflicts with an existing schedule.",
-                variant: "destructive",
             });
         } finally {
             setIsSaving(false);

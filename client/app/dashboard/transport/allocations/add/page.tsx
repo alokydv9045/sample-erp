@@ -98,7 +98,7 @@ export default function NewAllocationPage() {
     }
     try {
       setIsLoading(true);
-      const res = await transportAPI.allocateStudent(formData);
+      const res = await transportAPI.assignStudent(formData);
       if (res.data?.success) {
         toast.success('Student allocated successfully!');
         router.push('/dashboard/transport/allocations');

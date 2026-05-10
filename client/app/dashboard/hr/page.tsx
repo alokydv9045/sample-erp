@@ -290,7 +290,9 @@ export default function HRManagementPage() {
                 (typeof err?.response?.data?.error === 'string' ? err?.response?.data?.error : null) ||
                 err?.message ||
                 "Failed to generate payroll";
-            toast.error(errMsg);
+            toast.error("Generation Failed", {
+                description: errMsg,
+            });
         } finally {
             setIsGenerating(false);
         }
@@ -366,10 +368,8 @@ export default function HRManagementPage() {
             // Validate all staff are marked
             const unmarked = attList.filter(item => !item.status);
             if (unmarked.length > 0) {
-                toast({
-                    title: 'Incomplete Attendance',
+                toast.error("Incomplete Attendance", {
                     description: `Please mark attendance for all ${unmarked.length} remaining staff members.`,
-                    variant: 'destructive',
                 });
                 return;
             }

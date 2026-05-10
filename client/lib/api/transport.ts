@@ -18,6 +18,18 @@ export const transportAPI = {
     const { data } = await apiClient.delete(`/transport/vehicles/${id}`);
     return data;
   },
+  getVehicleById: async (id: string) => {
+    const { data } = await apiClient.get(`/transport/vehicles/${id}`);
+    return data;
+  },
+  logMaintenance: async (id: string, maintenanceData: any) => {
+    const { data } = await apiClient.post(`/transport/vehicles/${id}/maintenance`, maintenanceData);
+    return data;
+  },
+  logFuel: async (id: string, fuelData: any) => {
+    const { data } = await apiClient.post(`/transport/vehicles/${id}/fuel`, fuelData);
+    return data;
+  },
 
   // ROUTES & STOPS
   getRoutes: async (params?: any) => {
@@ -30,6 +42,10 @@ export const transportAPI = {
   },
   updateRoute: async (id: string, routeData: any) => {
     const { data } = await apiClient.put(`/transport/routes/${id}`, routeData);
+    return data;
+  },
+  getRouteById: async (id: string) => {
+    const { data } = await apiClient.get(`/transport/routes/${id}`);
     return data;
   },
 
@@ -62,6 +78,40 @@ export const transportAPI = {
   // STUDENT/PARENT VIEW
   getMyTransport: async () => {
     const { data } = await apiClient.get('/transport/my-transport');
+    return data;
+  },
+  getActiveTrip: async () => {
+    const { data } = await apiClient.get('/transport/active-trip');
+    return data;
+  },
+
+  // DRIVER OPS
+  getDriverAssignment: async () => {
+    const { data } = await apiClient.get('/transport/driver/assignment');
+    return data;
+  },
+  startTrip: async (tripData: any) => {
+    const { data } = await apiClient.post('/transport/trips/start', tripData);
+    return data;
+  },
+  stopTrip: async (tripId: string) => {
+    const { data } = await apiClient.post(`/transport/trips/${tripId}/stop`);
+    return data;
+  },
+  updateLocation: async (locationData: any) => {
+    const { data } = await apiClient.post('/transport/trips/location', locationData);
+    return data;
+  },
+  getGlobalLogs: async (params?: any) => {
+    const { data } = await apiClient.get('/transport/logs', { params });
+    return data;
+  },
+  getSettings: async () => {
+    const { data } = await apiClient.get('/transport/settings');
+    return data;
+  },
+  updateSettings: async (settingsData: any) => {
+    const { data } = await apiClient.put('/transport/settings', settingsData);
     return data;
   }
 };

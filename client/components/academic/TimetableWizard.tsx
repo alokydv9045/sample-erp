@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Wand2, Clock, Coffee, Calendar } from 'lucide-react';
 import { timetableAPI } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface TimetableWizardProps {
     isOpen: boolean;
@@ -34,7 +34,6 @@ const TimetableWizard: React.FC<TimetableWizardProps> = ({ isOpen, onClose, clas
         shortBreakDuration: 15,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { toast } = useToast();
 
     const timeToMins = (time: string) => {
         const [h, m] = time.split(':').map(Number);
@@ -50,17 +49,17 @@ const TimetableWizard: React.FC<TimetableWizardProps> = ({ isOpen, onClose, clas
         const lunch = timeToMins(config.lunchStartTime);
 
         if (start >= end) {
-            toast({ title: "Invalid Hours", description: "School start time must be before end time.", variant: "destructive" });
+            toast.error("Invalid Hours", { description: "School start time must be before end time." });
             return;
         }
 
         if (lunch < start || lunch >= end) {
-            toast({ title: "Invalid Lunch", description: "Lunch must be during school hours.", variant: "destructive" });
+            toast.error("Invalid Lunch", { description: "Lunch must be during school hours." });
             return;
         }
 
         if (config.periodDuration < 5 || config.periodDuration > 120) {
-            toast({ title: "Invalid Duration", description: "Period duration should be between 5 and 120 mins.", variant: "destructive" });
+            toast.error("Invalid Duration", { description: "Period duration should be between 5 and 120 mins." });
             return;
         }
 
@@ -69,16 +68,13 @@ const TimetableWizard: React.FC<TimetableWizardProps> = ({ isOpen, onClose, clas
             // 1. Save Config
             await timetableAPI.updateConfig(classId, { ...config, academicYearId });
             
-            toast({
-                title: "Configuration Saved",
+            toast.success("Configuration Saved", {
                 description: "Generating your timetable skeleton...",
             });
             onSuccess();
         } catch (error: any) {
-            toast({
-                title: "Error",
+            toast.error("Error", {
                 description: error?.response?.data?.error || "Failed to configure timetable",
-                variant: "destructive",
             });
         } finally {
             setIsSubmitting(false);

@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Wand2, Check, FileText, Sparkles } from 'lucide-react';
 import { aiAPI } from '@/lib/api/ai';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface SmartAssignmentModalProps {
   open: boolean;
@@ -43,11 +43,9 @@ export default function SmartAssignmentModal({ open, onOpenChange, onApply, init
     }
   });
 
-  const { toast } = useToast();
-
   const handleGenerate = async () => {
     if (!form.topic || !form.referenceText) {
-      toast({ title: 'Missing Info', description: 'Please provide a topic and reference notes.', variant: 'destructive' });
+      toast.error('Missing Info', { description: 'Please provide a topic and reference notes.' });
       return;
     }
 
@@ -63,10 +61,10 @@ export default function SmartAssignmentModal({ open, onOpenChange, onApply, init
       if (res.success) {
         setGeneratedData(res.data);
         setIsPreview(true);
-        toast({ title: 'Generated!', description: 'Your smart assignment is ready for preview.' });
+        toast.success('Generated!', { description: 'Your smart assignment is ready for preview.' });
       }
     } catch (err) {
-      toast({ title: 'AI Error', description: 'Failed to generate assignment. Please try again.', variant: 'destructive' });
+      toast.error('AI Error', { description: 'Failed to generate assignment. Please try again.' });
     } finally {
       setIsLoading(false);
     }

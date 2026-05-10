@@ -38,6 +38,33 @@ class TransportController {
     }
   }
 
+  async getVehicleById(req, res) {
+    try {
+      const vehicle = await transportService.getVehicleById(req.params.id);
+      res.json({ success: true, vehicle });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async logMaintenance(req, res) {
+    try {
+      const log = await transportService.logMaintenance(req.params.id, req.body);
+      res.status(201).json({ success: true, log });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async logFuel(req, res) {
+    try {
+      const log = await transportService.logFuel(req.params.id, req.body);
+      res.status(201).json({ success: true, log });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
   // ROUTES
   async getRoutes(req, res) {
     try {
@@ -60,6 +87,15 @@ class TransportController {
   async updateRoute(req, res) {
     try {
       const route = await transportService.updateRoute(req.params.id, req.body);
+      res.json({ success: true, route });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getRouteById(req, res) {
+    try {
+      const route = await transportService.getRouteById(req.params.id);
       res.json({ success: true, route });
     } catch (error) {
       res.status(500).json({ success: false, error: error.message });
@@ -124,6 +160,79 @@ class TransportController {
       }
       const allocation = await transportService.getStudentAllocation(studentId);
       res.json({ success: true, allocation });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getActiveTrip(req, res) {
+    try {
+      const trip = await transportService.getActiveTripForUser(req.user.id, req.user.role);
+      res.json({ success: true, trip });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  // DRIVER OPS
+  async getDriverAssignment(req, res) {
+    try {
+      const assignment = await transportService.getDriverAssignment(req.user.id);
+      res.json({ success: true, ...assignment });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async startTrip(req, res) {
+    try {
+      const trip = await transportService.startTrip(req.body);
+      res.status(201).json({ success: true, trip });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async stopTrip(req, res) {
+    try {
+      const trip = await transportService.stopTrip(req.params.tripId);
+      res.json({ success: true, trip });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async updateLocation(req, res) {
+    try {
+      const log = await transportService.updateLocation(req.body.tripId, req.body);
+      res.json({ success: true, log });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getGlobalLogs(req, res) {
+    try {
+      const logs = await transportService.getGlobalLogs(req.query);
+      res.json({ success: true, ...logs });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async getSettings(req, res) {
+    try {
+      const settings = await transportService.getTransportSettings();
+      res.json({ success: true, settings });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async updateSettings(req, res) {
+    try {
+      const settings = await transportService.updateTransportSettings(req.body);
+      res.json({ success: true, settings });
     } catch (error) {
       res.status(500).json({ success: false, error: error.message });
     }

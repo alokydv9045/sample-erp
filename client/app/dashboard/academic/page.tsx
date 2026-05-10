@@ -195,18 +195,18 @@ export default function AcademicPage() {
       const configRes = await timetableAPI.getConfig(selectedClassForLogic);
       const configId = configRes.config?.id;
       if (!configId) {
-        toast({ title: "Config Missing", description: "School timings are not configured for this class yet.", variant: "destructive" });
+        toast.error("Config Missing", { description: "School timings are not configured for this class yet." });
         return;
       }
       await timetableAPI.generateBaseline(timetableId, configId, selectedClassForLogic);
-      toast({ title: "Timetable Reset", description: "Baseline skeleton generated successfully." });
+      toast.success("Timetable Reset", { description: "Baseline skeleton generated successfully." });
       fetchDynamicSchedule(selectedSectionForLogic);
     } catch (error: any) {
       const errMsg = error?.response?.data?.message ||
         (typeof error?.response?.data?.error === 'string' ? error?.response?.data?.error : null) ||
         error?.message ||
         "Failed to generate baseline.";
-      toast({ title: "Generation Failed", description: errMsg, variant: "destructive" });
+      toast.error("Generation Failed", { description: errMsg });
     } finally {
       setIsLoading(false);
     }
@@ -214,7 +214,7 @@ export default function AcademicPage() {
 
   const handleSlotLogicClick = (slot: any) => {
     if (slot.isSpecialSlot) {
-      toast({ title: "Special Slot", description: "Breaks and lunch slots are managed via the Routine Wizard." });
+      toast.info("Special Slot", { description: "Breaks and lunch slots are managed via the Routine Wizard." });
       return;
     }
     setActiveSlot(slot);
