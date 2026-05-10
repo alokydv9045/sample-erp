@@ -13,6 +13,7 @@ const PERMISSION_ROLES = {
   'transport.manage.drivers': ['SUPER_ADMIN', 'ADMIN', 'TRANSPORT_MANAGER'],
   'transport.view.reports': ['SUPER_ADMIN', 'ADMIN', 'TRANSPORT_MANAGER', 'ACCOUNTANT'],
   'transport.send.notifications': ['SUPER_ADMIN', 'ADMIN', 'TRANSPORT_MANAGER', 'NOTIFICATION_MANAGER'],
+  'transport.manage.settings': ['SUPER_ADMIN', 'ADMIN', 'TRANSPORT_MANAGER'],
 };
 
 /**
