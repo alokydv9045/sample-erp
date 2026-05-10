@@ -1,0 +1,221 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { 
+  Navigation, 
+  ArrowLeft, 
+  MapPin, 
+  Plus, 
+  Trash2, 
+  Loader2,
+  Clock,
+  Map as MapIcon,
+  CheckCircle2
+} from 'lucide-react';
+import { transportAPI } from '@/lib/api/transport';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+
+export default function AddRoutePage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    startLocation: '',
+    endLocation: '',
+    stops: [{ name: '', arrivalTime: '', order: 1, latitude: 0.0, longitude: 0.0 }]
+  });
+
+  const addStop = () => {
+    setFormData({
+      ...formData,
+      stops: [...formData.stops, { 
+        name: '', 
+        arrivalTime: '', 
+        order: formData.stops.length + 1,
+        latitude: 0.0,
+        longitude: 0.0
+      }]
+    });
+  };
+
+  const removeStop = (index: number) => {
+    const newStops = formData.stops.filter((_, i) => i !== index);
+    // Re-order remaining stops
+    const reorderedStops = newStops.map((stop, i) => ({ ...stop, order: i + 1 }));
+    setFormData({ ...formData, stops: reorderedStops });
+  };
+
+  const updateStop = (index: number, field: string, value: string) => {
+    const newStops = [...formData.stops];
+    newStops[index] = { ...newStops[index], [field]: value };
+    setFormData({ ...formData, stops: newStops });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      // Ensure numeric order and valid schema structure
+      const payload = {
+        ...formData,
+        stops: formData.stops.map(s => ({
+            ...s,
+            latitude: Number(s.latitude) || 0.0,
+            longitude: Number(s.longitude) || 0.0
+        }))
+      };
+      
+      const res = await transportAPI.createRoute(payload);
+      if (res.data?.success) {
+        toast.success('Route network created!');
+        router.push('/dashboard/transport/routes');
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to create route.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-6 md:p-10 space-y-10 animate-in fade-in duration-700 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between gap-4">
+        <Button variant="ghost" className="rounded-2xl hover:bg-slate-100 font-black h-12 px-6" onClick={() => router.back()}>
+          <ArrowLeft className="mr-2 h-5 w-5" />
+          Go Back
+        </Button>
+        <div className="bg-blue-50 text-blue-600 px-6 py-2 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2">
+            <MapIcon className="h-4 w-4" />
+            Network Architect
+        </div>
+      </div>
+
+      <div>
+        <h1 className="text-4xl font-black tracking-tight text-slate-900">Define New Route</h1>
+        <p className="text-slate-500 font-medium mt-1">Map out start-to-end points and intermediate pick-up timings.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-10">
+        <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white p-8 overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-12 opacity-5">
+                <Navigation className="w-32 h-32" />
+            </div>
+            <CardHeader className="pb-8 border-b border-slate-100 mb-8 p-0">
+                <CardTitle className="text-xl font-black text-slate-900 flex items-center gap-3">
+                    <Navigation className="h-6 w-6 text-blue-600" />
+                    Route Topology
+                </CardTitle>
+                <CardDescription className="text-slate-400 font-medium tracking-tight">Naming and geographical endpoints.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-10 md:grid-cols-2 p-0">
+                <div className="space-y-4">
+                    <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest px-1">Route Designation</Label>
+                    <Input 
+                        placeholder="e.g., North Express - Line A" 
+                        className="h-16 rounded-2xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500 text-lg font-bold"
+                        required 
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-5">
+                    <div className="space-y-4">
+                        <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest px-1">Start Point</Label>
+                        <Input 
+                            placeholder="Origin" 
+                            className="h-16 rounded-2xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+                            required 
+                            value={formData.startLocation}
+                            onChange={(e) => setFormData({...formData, startLocation: e.target.value})}
+                        />
+                    </div>
+                    <div className="space-y-4">
+                        <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest px-1">Final Stop</Label>
+                        <Input 
+                            placeholder="Destination" 
+                            className="h-16 rounded-2xl bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
+                            required 
+                            value={formData.endLocation}
+                            onChange={(e) => setFormData({...formData, endLocation: e.target.value})}
+                        />
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-2xl rounded-[3rem] bg-white p-10 ring-1 ring-slate-100">
+             <div className="flex items-center justify-between mb-10">
+                <div>
+                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">Pick-up Points Configuration</h3>
+                    <p className="text-slate-400 font-medium">Define sequential stops and scheduled arrival timings.</p>
+                </div>
+                <Button type="button" onClick={addStop} className="h-14 px-8 rounded-2xl bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 font-bold transition-all">
+                    <Plus className="mr-2 h-5 w-5" />
+                    New Stop
+                </Button>
+             </div>
+
+             <div className="space-y-6 relative ml-6 pl-10 border-l-2 border-dashed border-slate-200">
+                {formData.stops.map((stop, index) => (
+                    <div key={index} className="relative group">
+                         <div className="absolute -left-[3.25rem] top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center font-black text-[10px] text-blue-600 shadow-lg">
+                            {index + 1}
+                         </div>
+                         <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center gap-6 group-hover:border-blue-200 transition-all">
+                            <div className="flex-1 w-full space-y-3">
+                                <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest px-1">Location Name</Label>
+                                <Input 
+                                    placeholder="e.g., Central Park Corner" 
+                                    className="h-14 rounded-2xl bg-white border-slate-200 focus-visible:ring-blue-500 font-bold"
+                                    required 
+                                    value={stop.name}
+                                    onChange={(e) => updateStop(index, 'name', e.target.value)}
+                                />
+                            </div>
+                            <div className="w-full md:w-48 space-y-3">
+                                <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest px-1">Arrival Time</Label>
+                                <div className="relative">
+                                    <Input 
+                                        type="time" 
+                                        className="h-14 rounded-2xl bg-white border-slate-200 focus-visible:ring-blue-500 pl-11"
+                                        required 
+                                        value={stop.arrivalTime}
+                                        onChange={(e) => updateStop(index, 'arrivalTime', e.target.value)}
+                                    />
+                                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                </div>
+                            </div>
+                            {formData.stops.length > 1 && (
+                                <Button 
+                                    type="button" 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-14 w-14 rounded-2xl hover:bg-rose-50 hover:text-rose-500 text-slate-300"
+                                    onClick={() => removeStop(index)}
+                                >
+                                    <Trash2 className="h-5 w-5" />
+                                </Button>
+                            )}
+                         </div>
+                    </div>
+                ))}
+             </div>
+        </Card>
+
+        <div className="flex justify-end gap-5">
+            <Button variant="ghost" className="h-16 px-10 rounded-2xl font-black text-slate-400 hover:text-slate-900" type="button" onClick={() => router.back()}>Discard Network</Button>
+            <Button className="h-16 px-14 rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-2xl shadow-blue-600/30 font-black text-white transition-all flex items-center gap-3" disabled={isLoading} type="submit">
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCircle2 className="h-5 w-5" />}
+                PUBLISH ROUTE NETWORK
+            </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
