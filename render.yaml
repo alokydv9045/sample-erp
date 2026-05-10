@@ -1,0 +1,74 @@
+services:
+  # ERP Backend API
+  - type: web
+    name: sample-erp-api
+    env: node
+    plan: free
+    buildCommand: npm install --include=dev && npx prisma generate
+    startCommand: npx prisma migrate deploy && npm start
+    rootDir: server
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sample-erp-db
+          property: connectionString
+      - key: DIRECT_URL
+        fromDatabase:
+          name: sample-erp-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: sample-erp-cache
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: FAST2SMS_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  # ERP Frontend Client
+  - type: web
+    name: sample-erp-client
+    env: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    rootDir: client
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: PORT
+        value: 3001
+      - key: NEXT_TELEMETRY_DISABLED
+        value: 1
+
+  # ERP Redis (for BullMQ)
+  - type: keyvalue
+    name: sample-erp-cache
+    plan: free
+    ipAllowList: []
+
+databases:
+  # ERP Database
+  - name: sample-erp-db
+    plan: free
