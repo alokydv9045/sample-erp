@@ -17,7 +17,7 @@ const {
   getExamStats,
   getInventoryStats,
   getAdmissionStats
-} = require('../controllers/DashboardController');
+} = require('../controllers/dashboardController');
 
 // All dashboard routes require authentication
 router.use(authMiddleware);
