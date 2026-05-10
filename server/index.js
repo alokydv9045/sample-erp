@@ -106,6 +106,16 @@ if (process.env.RATE_LIMIT_ENABLED === 'true') {
   app.use('/api/', limiter);
 }
 
+// Welcome route
+app.get('/', (req, res) => {
+  res.json({
+    message: '🚀 EduSphere School ERP API is running',
+    version: '1.0.0',
+    documentation: 'Contact system administrator for API documentation',
+    healthCheck: '/health'
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
