@@ -79,6 +79,7 @@ const register = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     message: 'User registered successfully',
+    token, // Return token for fallback/non-cookie environments
     user: {
       id: user.id,
       email: user.email,
@@ -172,6 +173,7 @@ const login = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Login successful',
+    token, // Return token for fallback/non-cookie environments
     user: {
       id: user.id,
       email: user.email,

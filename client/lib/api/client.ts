@@ -17,8 +17,13 @@ apiClient.interceptors.request.use(
       config.url = config.url.replace(/^\/api/, '');
     }
 
-    // Note: No longer sending Authorization header from localStorage
-    // Browser automatically sends 'auth_token' cookie if withCredentials is true
+    // Fallback: Send Authorization header from localStorage if cookie is blocked
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
     
     return config;
   },
@@ -38,6 +43,7 @@ apiClient.interceptors.response.use(
       if (window.location.pathname !== '/login' && !isLoginRequest) {
         // Clear local cache
         localStorage.removeItem('user');
+        localStorage.removeItem('auth_token');
         window.location.href = '/login?reason=session_expired';
       }
       return Promise.reject(error);

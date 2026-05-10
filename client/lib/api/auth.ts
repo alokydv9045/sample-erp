@@ -44,6 +44,7 @@ export const authAPI = {
     const { data } = await apiClient.post('/auth/login', credentials);
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.token) localStorage.setItem('auth_token', data.token);
     }
     return data;
   },
@@ -52,6 +53,7 @@ export const authAPI = {
     const { data } = await apiClient.post('/auth/register', userData);
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.token) localStorage.setItem('auth_token', data.token);
     }
     return data;
   },
@@ -64,6 +66,7 @@ export const authAPI = {
     } finally {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('user');
+        localStorage.removeItem('auth_token');
         window.location.href = '/login';
       }
     }
