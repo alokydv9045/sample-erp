@@ -68,8 +68,20 @@ app.use(helmet({
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : true,
+  origin: (origin, callback) => {
+    const allowed = process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim().replace(/\/$/, '')) 
+      : [];
+    
+    // Allow if origin is in list, or if no origin (like mobile apps/curl), or if ALLOWED_ORIGINS is not set (dev mode)
+    if (!origin || !process.env.ALLOWED_ORIGINS || allowed.indexOf(origin.replace(/\/$/, '')) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 app.use(cors(corsOptions));
 
